@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MNG Tester</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #1a1a1a; color: #ccc; font: 14px/1.5 monospace; padding: 20px; }
+h1 { color: #fff; margin-bottom: 16px; font-size: 18px; }
+#drop { border: 2px dashed #444; border-radius: 8px; padding: 40px; text-align: center; color: #666; cursor: pointer; transition: border-color .2s, color .2s; margin-bottom: 20px; }
+#drop.over { border-color: #888; color: #aaa; }
+#drop input { display: none; }
+#gallery { display: flex; flex-wrap: wrap; gap: 16px; }
+.card { background: #242424; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+.card canvas { border-radius: 4px; max-width: 100%; image-rendering: pixelated; }
+.card .name { color: #aaa; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .info { color: #666; font-size: 11px; }
+.card .controls { display: flex; gap: 8px; }
+.card button { background: #333; border: none; color: #ccc; border-radius: 4px; padding: 4px 10px; cursor: pointer; font: 12px monospace; }
+.card button:hover { background: #444; }
+.err { color: #e05; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>MNG Tester</h1>
+<div id="drop">
+    <p>Drop MNG files here or click to browse</p>
+    <input type="file" id="file-input" multiple accept=".mng">
+</div>
+<div id="gallery"></div>
+<script src="mnglib.js"></script>
+<script>
+const drop = document.getElementById('drop');
+const gallery = document.getElementById('gallery');
+
+drop.addEventListener('click', () => document.getElementById('file-input').click());
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); loadFiles(e.dataTransfer.files); });
+document.getElementById('file-input').addEventListener('change', e => loadFiles(e.target.files));
+
+async function loadFiles(files) {
+    for (const file of files) {
+        if (!file.name.endsWith('.mng')) continue;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<div class="name">${file.name}</div><div class="info">Loading…</div>`;
+        gallery.appendChild(card);
+        try {
+            const buf = await file.arrayBuffer();
+            const frames = await MNG.parse(buf);
+            const canvas = await MNG.play(buf);
+            const info = card.querySelector('.info');
+            const delays = frames.map(f => f.delay);
+            const minD = Math.min(...delays), maxD = Math.max(...delays);
+            const delayStr = minD === maxD ? `${minD}ms/frame` : `${minD}–${maxD}ms/frame`;
+            info.textContent = `${frames.length} frame${frames.length !== 1 ? 's' : ''} · ${canvas.width}×${canvas.height} · ${delayStr}`;
+            card.appendChild(canvas);
+            if (frames.length > 1) {
+                const controls = document.createElement('div');
+                controls.className = 'controls';
+                const play = btn('▶ Play', () => canvas.play());
+                const pause = btn('⏸ Pause', () => canvas.pause());
+                const stop = btn('⏹ Stop', () => canvas.stop());
+                controls.append(play, pause, stop);
+                card.appendChild(controls);
+            }
+        } catch(e) {
+            card.innerHTML += `<div class="err">${e.message}</div>`;
+        }
+    }
+}
+
+function btn(label, fn) {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.onclick = fn;
+    return b;
+}
+</script>
+</body>
+</html>
