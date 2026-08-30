@@ -7,7 +7,7 @@
 // @match        *://*/*
 // @grant        GM_xmlhttpRequest
 // @connect      *
-// @license      GPL-3.0-or-later
+// @license      0BSD
 // ==/UserScript==
 
 (function() {

@@ -1,6 +1,6 @@
-# mng.js
+# Browser MNG playback
 
-Possibly the first client-side JavaScript MNG animation player.
+`mng.js` is a dependency-free browser parser and canvas player for MNG animation files.
 
 MNG (Multiple-image Network Graphics) is an animation format from the early 2000s that never gained widespread browser support and was largely abandoned. This library parses and plays MNG files directly in the browser with no dependencies, using Canvas for rendering.
 
@@ -46,7 +46,7 @@ canvas.stop();
 ## Links
 
 - **Userscript** (auto MNG support on any site): [MNG Support on GreasyFork](https://greasyfork.org/en/scripts/571788-mng-support)
-- **Library**: [mng.js](https://raw.githubusercontent.com/MorenoLand/mng.js/refs/heads/feature/main/mng.js)
+- **Library**: [mng.js](mng.js)
 
 ## Test Page
 

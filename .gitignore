@@ -1,0 +1,9 @@
+CSharp/bin/
+CSharp/obj/
+Rust/target/
+Python/__pycache__/
+Java/**/*.class
+Kotlin/**/*.class
+Swift/.build/
+*.o
+*.obj
